@@ -13,7 +13,7 @@ def get_ETL8B_data(dataset, categories, samplesPerCategory, vectorize=False, res
     new_img = Image.new('1', (W, H))
 
     
-    filename = '../ETLC/ETL8B/ETL8B2C'+str(dataset)
+    filename = '$HOME/CS231N/japanese-handwriting-nn/ETLC/ETL8B/ETL8B2C'+str(dataset)
 
     X = []
     Y = []
