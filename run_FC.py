@@ -10,44 +10,21 @@
 #SBATCH  --mail-user=SUNETID@stanford.edu
 #SBATCH --ntasks-per-node=16
 
+import cPickle as pickle
 import numpy as np
 import struct
 import skflow
 import tensorflow as tf
-from PIL import Image, ImageEnhance
-from preprocessing.data_utils import get_ETL8B_data
 from sklearn import datasets, metrics, cross_validation
 from sklearn.utils import shuffle
-
 
 def exp_decay(global_step):
     return tf.train.exponential_decay(0.1, global_step, 100, 0.70)
 
-writersPerChar = 160
 
-characters, labels = np.array([]), np.array([])
+data_name = 'preprocessing/160_writers.pckl'
 
-for i in range(1,4):
-    if i == 3:
-       max_records = 315
-    else:
-       max_records = 319
-    
-    chars, labs = get_ETL8B_data(i, range(0,max_records), writersPerChar, vectorize=True, resize=(28,28))
-    characters = np.concatenate((characters,chars), axis=0)
-    labels = np.concatenate((labels,labs), axis=0)
-
-for dataset in range(7,14):
-    if dataset < 10:
-        dataset = '0'+str(dataset)
-    chars, labs = get_ETL8B_data(dataset, range(0,8), writersPerChar, database='ETL1C', vectorize=True, resize=(28,28))
-    characters = np.concatenate((characters,chars), axis=0)
-    labels = np.concatenate((labels,labs), axis=0)
-
-# rename labels from 0 to n_labels-1
-unique_labels = list(set(labels))
-labels_dict = {unique_labels[i]:i for i in range(len(unique_labels))}
-new_labels = np.array([labels_dict[l] for l in labels], dtype=np.int32)
+characters, new_labels = pickle.load(open(data_name))
 
 characters_shuffle, new_labels_shuffle = shuffle(characters, new_labels, random_state=0)
 
