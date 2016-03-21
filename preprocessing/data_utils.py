@@ -26,10 +26,14 @@ def read_record(database,f):
                       H + size_add/2))
         return r + (iE,)
 
-def get_ETL8B_data(dataset, categories, samplesPerCategory,
-                   database = 'ETL8B2',
-                   starting_writer = None, vectorize=False, 
-                   resize=None, img_format=None):
+def get_ETL_data(dataset, categories, samplesPerCategory,
+                 database='ETL8B2',
+                 starting_writer=None,
+                 vectorize=False, 
+                 resize=None,
+                 img_format=None,
+                 get_scripts=False,
+                 ):
     W, H = 64, 64
     new_img = Image.new('1', (W, H))
 
@@ -45,6 +49,7 @@ def get_ETL8B_data(dataset, categories, samplesPerCategory,
 
     X = []
     Y = []
+    scriptTypes = []
 
     try:
         iter(categories)
@@ -56,7 +61,7 @@ def get_ETL8B_data(dataset, categories, samplesPerCategory,
             if database == 'ETL8B2':
                 f.seek((id_category * 160 + 1) * 512)
             elif database == 'ETL1C':
-                f.seek((id_category * 1410 + 1) * 2052)
+                f.seek((id_category * 1411 + 1) * 2052)
 
             for i in range(samplesPerCategory):
                 try:
@@ -68,8 +73,10 @@ def get_ETL8B_data(dataset, categories, samplesPerCategory,
                     # start outputting records
                     r = read_record(database,f)
                     new_img.paste(r[-1], (0,0))    
+
                     iI = Image.eval(new_img, lambda x: not x)
 
+                    # resize images
                     if resize:
                         # new_img.thumbnail(resize, Image.ANTIALIAS)
                         iI.thumbnail(resize)
@@ -77,22 +84,37 @@ def get_ETL8B_data(dataset, categories, samplesPerCategory,
                     else:
                         shapes = W, H
                     
+                    # output formats
                     if img_format:
                         outData = iI
+                    elif vectorize:
+                        outData = np.asarray(iI.getdata()).reshape(shapes[0]*shapes[1])
                     else:
-                        if vectorize:
-                            outData = np.asarray(iI.getdata()).reshape(shapes[0]*shapes[1])
-                        else:
-                            outData = np.asarray(iI.getdata()).reshape(shapes[0],shapes[1])
+                        outData = np.asarray(iI.getdata()).reshape(shapes[0],shapes[1])
                     
                     X.append(outData)
                     if database == 'ETL8B2':
                         Y.append(r[1])
+                        if id_category < 75:
+                            scriptTypes.append(0)
+                        else:
+                            scriptTypes.append(2)
                     elif database == 'ETL1C':
                         Y.append(r[3])
+                        scriptTypes.append(1)
                 except:
+                    print "Reached end of record"
                     break
+    output = []
     if img_format:
-        return X, Y
+        output += [X]
+        output += [Y]
     else:
-        return np.asarray(X, dtype=np.int32), np.asarray(Y, dtype=np.int32)
+        X, Y = np.asarray(X, dtype=np.int32), np.asarray(Y, dtype=np.int32)
+        output += [X]
+        output += [Y]
+
+    if get_scripts:
+        output += [scriptTypes]
+
+    return output
