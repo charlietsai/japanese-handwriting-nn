@@ -63,6 +63,9 @@ def get_ETL_data(dataset, categories, writers_per_char,
     - resize: (W,H) tuple to specify the output image dimensions
     - img_format: True will return as PIL image
     - get_scripts: True will also return a label for the type of Japanese script
+
+    Returns:
+    - output: (X, Y [, scriptTypes]) tuple containing the data, labels, and the script type if get_scripts=True
     """
 
     W, H = 64, 64
