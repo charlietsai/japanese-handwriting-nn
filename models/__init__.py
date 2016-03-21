@@ -9,7 +9,7 @@ import numpy as np
 import tensorflow as tf
 
 
-def AlexNet(weights_path=None, input_shape=(1, 64, 64), n_output=None):
+def M7_1(weights_path=None, input_shape=(1, 64, 64), n_output=None):
     model = Sequential()
 
     model.add(Convolution2D(64, 3, 3, border_mode='same', input_shape=input_shape))
@@ -46,7 +46,7 @@ def AlexNet(weights_path=None, input_shape=(1, 64, 64), n_output=None):
     return model
 
 
-def ZYH_Net_new(weights_path=None, input_shape=(1, 64, 64), n_output=None):
+def M13(weights_path=None, input_shape=(1, 64, 64), n_output=None):
     model = Sequential()
     model.add(Convolution2D(32, 3, 3, border_mode='same', input_shape=input_shape))
     model.add(BatchNormalization())
@@ -101,59 +101,7 @@ def ZYH_Net_new(weights_path=None, input_shape=(1, 64, 64), n_output=None):
         model.load_weights(weights_path)
     return model
 
-def ZYH_Net(weights_path=None, input_shape=(1, 64, 64), n_output=None):
-    model = Sequential()
-    model.add(Convolution2D(32, 3, 3, border_mode='same', input_shape=input_shape))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Convolution2D(32, 3, 3))
-    model.add(Activation('relu'))
-    model.add(Dropout(0.5))
-
-    model.add(Convolution2D(64, 3, 3))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Convolution2D(64, 3, 3))
-    model.add(Activation('relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.5))
-
-    model.add(Convolution2D(128, 3, 3, border_mode='same'))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Convolution2D(128, 3, 3))
-    model.add(Activation('relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.5))
-
-    model.add(Convolution2D(256, 3, 3, border_mode='same'))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Convolution2D(256, 3, 3))
-    model.add(Activation('relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.5))
-
-    model.add(Convolution2D(512, 3, 3, border_mode='same'))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Convolution2D(512, 3, 3))
-    model.add(Activation('relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.5))
-
-    model.add(Flatten())
-    model.add(Dense(256))
-    model.add(Activation('relu'))
-    model.add(Dropout(0.5))
-
-    model.add(Dense(n_output))
-    model.add(Activation('softmax'))
-    if weights_path:
-        model.load_weights(weights_path)
-    return model
-
-def simpleVGG(weights_path=None, input_shape = (1, 64, 64), n_output=None):
+def M6_1(weights_path=None, input_shape = (1, 64, 64), n_output=None):
     model = Sequential()
     model.add(Convolution2D(32, 3, 3, border_mode='same', input_shape=input_shape))
     model.add(Activation('relu'))
@@ -180,7 +128,7 @@ def simpleVGG(weights_path=None, input_shape = (1, 64, 64), n_output=None):
         model.load_weights(weights_path)
     return model
 
-def VGG_A(weights_path=None, input_shape = (1, 64, 64), n_output=None):
+def M9(weights_path=None, input_shape = (1, 64, 64), n_output=None):
     model = Sequential()
 
     model.add(Convolution2D(64, 3, 3, border_mode='valid', input_shape=input_shape))
@@ -221,7 +169,7 @@ def VGG_A(weights_path=None, input_shape = (1, 64, 64), n_output=None):
     return model
 
 
-def VGG_B(weights_path=None, input_shape=(1, 64, 64), n_output=None):
+def M11(weights_path=None, input_shape=(1, 64, 64), n_output=None):
     model = Sequential()
 
     model.add(Convolution2D(64, 3, 3, border_mode='same', input_shape=input_shape))
@@ -266,7 +214,7 @@ def VGG_B(weights_path=None, input_shape=(1, 64, 64), n_output=None):
         model.load_weights(weights_path)
     return model
 
-def VGG_C(weights_path=None, input_shape=(1, 64, 64), n_output=None):
+def M6_2(weights_path=None, input_shape=(1, 64, 64), n_output=None):
     model = Sequential()
 
     model.add(Convolution2D(32, 3, 3, border_mode='valid', input_shape=input_shape))
@@ -295,7 +243,7 @@ def VGG_C(weights_path=None, input_shape=(1, 64, 64), n_output=None):
     return model
 
 
-def VGG_D(weights_path=None, input_shape=(1, 64, 64), n_output=None):
+def M6_3(weights_path=None, input_shape=(1, 64, 64), n_output=None):
     model = Sequential()
 
     model.add(Convolution2D(64, 3, 3, border_mode='same', input_shape=input_shape))
@@ -332,7 +280,7 @@ def VGG_D(weights_path=None, input_shape=(1, 64, 64), n_output=None):
     return model
 
 
-def VGG_E(weights_path=None, input_shape=(1, 64, 64), n_output=None):
+def M7_1(weights_path=None, input_shape=(1, 64, 64), n_output=None):
     model = Sequential()
 
     model.add(Convolution2D(64, 3, 3, border_mode='same', input_shape=input_shape))
@@ -374,7 +322,7 @@ def VGG_E(weights_path=None, input_shape=(1, 64, 64), n_output=None):
     return model
 
 
-def VGG_F(weights_path=None, input_shape=(1, 64, 64), n_output=None):
+def M12(weights_path=None, input_shape=(1, 64, 64), n_output=None):
     model = Sequential()
 
     model.add(Convolution2D(64, 3, 3, border_mode='same', input_shape=input_shape))
@@ -420,42 +368,7 @@ def VGG_F(weights_path=None, input_shape=(1, 64, 64), n_output=None):
         model.load_weights(weights_path)
     return model
 
-
-def VGG_p(weights_path=None, input_shape=(1, 64, 64), n_output=None):
-    model = Sequential()
-    model.add(Convolution2D(32, 3, 3, border_mode='same', input_shape=input_shape))
-    model.add(Activation('relu'))
-    model.add(Convolution2D(32, 3, 3))
-    model.add(Activation('relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.5))
-
-    model.add(Convolution2D(64, 3, 3, border_mode='same'))
-    model.add(Activation('relu'))
-    model.add(Convolution2D(64, 3, 3))
-    model.add(Activation('relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.5))
-
-    model.add(Convolution2D(128, 3, 3, border_mode='same'))
-    model.add(Activation('relu'))
-    model.add(Convolution2D(128, 3, 3))
-    model.add(Activation('relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.5))
-
-    model.add(Flatten())
-    model.add(Dense(256))
-    model.add(Activation('relu'))
-    model.add(Dropout(0.5))
-
-    model.add(Dense(n_output))
-    model.add(Activation('softmax'))
-    if weights_path:
-        model.load_weights(weights_path)
-    return model
-
-def VGG_p_new(weights_path=None, input_shape=(1, 64, 64), n_output=None):
+def M8(weights_path=None, input_shape=(1, 64, 64), n_output=None):
     model = Sequential()
     model.add(Convolution2D(32, 3, 3, border_mode='same', input_shape=input_shape))
     model.add(Activation('relu'))
@@ -529,7 +442,7 @@ def VGG_vis(weights_path=None, input_shape=(1, 64, 64), n_output=None):
         model.load_weights(weights_path)
     return model
 
-def VGG_16(weights_path=None,
+def M16(weights_path='weights/keras_VGG-16-katakana_weights.h5',
            input_shape=(1, 64, 64),
            n_output=None,
            freeze_layers=False):
@@ -609,7 +522,7 @@ def VGG_16(weights_path=None,
     return model
 
 
-def VGG_16_drop(input_shape=(1, 64, 64),
+def M16_drop(input_shape=(1, 64, 64),
            n_output=None,
            freeze_layers=False):
 

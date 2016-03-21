@@ -1,14 +1,29 @@
 import struct
 import numpy as np
 from PIL import Image, ImageEnhance
+
+# Specify the path to the ETL character database files
+ETL_Path = 'ETLC'
  
-def read_record(database,f):
+def read_record(database, f):
+    """
+    Load image from ETL binary
+    
+    Inputs:
+    - databse: 'ETL8B2' or 'ETL1C'. Read the ETL documentation to add support
+               for other datasets.
+    - f: opened binary file
+
+    Returns:
+    - PIL image of the Japanese character
+    """
     W, H = 64, 63
     if database == 'ETL8B2':
         s = f.read(512)
         r = struct.unpack('>2H4s504s', s)
         i1 = Image.frombytes('1', (W,H), r[3], 'raw')
-        return r + (i1,)
+        img_out = r + (i1,)
+        return img_out
 
     elif database == 'ETL1C':
         s = f.read(2052)
@@ -24,9 +39,10 @@ def read_record(database,f):
                       size_add/2,
                       W + size_add/2,
                       H + size_add/2))
-        return r + (iE,)
+        img_out = r + (iE,)
+        return img_out
 
-def get_ETL_data(dataset, categories, samplesPerCategory,
+def get_ETL_data(dataset, categories, writers_per_char,
                  database='ETL8B2',
                  starting_writer=None,
                  vectorize=False, 
@@ -34,13 +50,28 @@ def get_ETL_data(dataset, categories, samplesPerCategory,
                  img_format=None,
                  get_scripts=False,
                  ):
+    """
+    Load Japanese characters into a list of PIL images or numpy arrays.
+
+    Inputs:
+    - dataset: the dataset index for the corresponding database. This will be the
+               index that shows up in the name for the binary file.
+    - categories: the characters to return
+    - writers_per_char: the number of different writers to return, for each character.
+    - starting_writer: specify the index for a starting writer
+    - vectorize: True will return as a flattened numpy array
+    - resize: (W,H) tuple to specify the output image dimensions
+    - img_format: True will return as PIL image
+    - get_scripts: True will also return a label for the type of Japanese script
+    """
+
     W, H = 64, 64
     new_img = Image.new('1', (W, H))
 
     if database == 'ETL8B2':
-        name_base = 'ETLC/ETL8B/ETL8B2C'
+        name_base = ETL_path+'/ETL8B/ETL8B2C'
     elif database == 'ETL1C':
-        name_base = 'ETLC/ETL1/ETL1C_'
+        name_base = ETL_path+'/ETL1/ETL1C_'
 
     try:
         filename = name_base+dataset
@@ -63,7 +94,7 @@ def get_ETL_data(dataset, categories, samplesPerCategory,
             elif database == 'ETL1C':
                 f.seek((id_category * 1411 + 1) * 2052)
 
-            for i in range(samplesPerCategory):
+            for i in range(writers_per_char):
                 try:
                     # skip records
                     if starting_writer:
@@ -73,7 +104,6 @@ def get_ETL_data(dataset, categories, samplesPerCategory,
                     # start outputting records
                     r = read_record(database,f)
                     new_img.paste(r[-1], (0,0))    
-
                     iI = Image.eval(new_img, lambda x: not x)
 
                     # resize images
@@ -103,7 +133,6 @@ def get_ETL_data(dataset, categories, samplesPerCategory,
                         Y.append(r[3])
                         scriptTypes.append(1)
                 except:
-                    print "Reached end of record"
                     break
     output = []
     if img_format:

@@ -1,10 +1,25 @@
+import numpy as np
+
+from keras.utils import np_utils
 from preprocessing.data_utils import get_ETL_data
 from sklearn import datasets, metrics, cross_validation
 from sklearn.utils import shuffle
-from keras.utils import np_utils
-import numpy as np
 
-def data(writersPerChar = 160, mode='all', get_scripts=False):
+def data(writers_per_char = 160, mode='all', get_scripts=False, test_size=0.2):
+    """
+    Load the characters into a format suitable for Keras
+    Inputs:
+    - writers_per_char: number of samples per Japanese character
+    - mode: specify the type of Japanese characters: 'all', 'hiragana', 'kanji', or 'katakana'
+    - get_scripts: 'True' returns a label for the type of script corresponding to each Japanese character
+    - test_size: fraction of data to use for obtaining a test error
+    
+    Returns:
+    - X_train: training data
+    - Y_train: training labels
+    - X_test: test data
+    - Y_test: test labels
+    """
     size = (64,64)
     if mode in ('kanji','all'):
         for i in range(1,4):
@@ -19,9 +34,9 @@ def data(writersPerChar = 160, mode='all', get_scripts=False):
                 start_record = 75
 
             if get_scripts:
-                chars, labs, spts = get_ETL_data(i, range(start_record,max_records), writersPerChar, get_scripts = True)
+                chars, labs, spts = get_ETL_data(i, range(start_record,max_records), writers_per_char, get_scripts = True)
             else:
-                chars, labs = get_ETL_data(i, range(start_record,max_records), writersPerChar)
+                chars, labs = get_ETL_data(i, range(start_record,max_records), writers_per_char)
                 
             if i == 1 and mode in ('kanji','all'):
                 characters = chars
@@ -37,9 +52,9 @@ def data(writersPerChar = 160, mode='all', get_scripts=False):
     if mode in ('hiragana','all'):
         max_records = 75
         if get_scripts:
-            chars, labs, spts = get_ETL_data(1, range(0,max_records), writersPerChar, get_scripts = True)
+            chars, labs, spts = get_ETL_data(1, range(0,max_records), writers_per_char, get_scripts = True)
         else:
-            chars, labs = get_ETL_data(1, range(0,max_records), writersPerChar)
+            chars, labs = get_ETL_data(1, range(0,max_records), writers_per_char)
 
         if mode == 'hiragana':
             characters = chars
@@ -60,9 +75,9 @@ def data(writersPerChar = 160, mode='all', get_scripts=False):
                 filename = str(i)
 
             if get_scripts:
-                chars, labs, spts = get_ETL_data(filename, range(0,8), writersPerChar, database='ETL1C', get_scripts=True)
+                chars, labs, spts = get_ETL_data(filename, range(0,8), writers_per_char, database='ETL1C', get_scripts=True)
             else:
-                chars, labs = get_ETL_data(filename, range(0,8), writersPerChar, database='ETL1C')
+                chars, labs = get_ETL_data(filename, range(0,8), writers_per_char, database='ETL1C')
 
             if i == 7 and mode == 'katakana':
                 characters = chars
@@ -82,13 +97,13 @@ def data(writersPerChar = 160, mode='all', get_scripts=False):
         characters_shuffle, scripts_shuffle = shuffle(characters, scripts, random_state=0)
         x_train, x_test, y_train, y_test = cross_validation.train_test_split(characters_shuffle,
                                                                              scripts_shuffle,
-                                                                             test_size=0.2,
+                                                                             test_size=test_size,
                                                                              random_state=42)
     elif mode in ('all','kanji','hiragana','katakana'):
         characters_shuffle, new_labels_shuffle = shuffle(characters, new_labels, random_state=0)
         x_train, x_test, y_train, y_test = cross_validation.train_test_split(characters_shuffle,
                                                                              new_labels_shuffle,
-                                                                             test_size=0.2,
+                                                                             test_size=test_size,
                                                                              random_state=42)
 
 
