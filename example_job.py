@@ -1,14 +1,18 @@
+"""Example job for running a neural network."""
+
 import h5py
 import numpy as np
 
 from preprocessing.make_keras_input import data
 from models import M16
 
+
 def load_model_weights(name, model):
     try:
         model.load_weights('weights/M16-hiragana_weights.h5')
     except:
         print "Can't load weights!"
+
 
 def save_model_weights(name, model):
     try:

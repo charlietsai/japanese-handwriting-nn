@@ -1,85 +1,89 @@
+"""Utilities for loading raw data"""
+
 import struct
 import numpy as np
 from PIL import Image, ImageEnhance
 
 # Specify the path to the ETL character database files
-ETL_Path = 'ETLC'
- 
+ETL_PATH = 'ETLC'
+
+
 def read_record(database, f):
-    """
-    Load image from ETL binary
-    
-    Inputs:
-    - databse: 'ETL8B2' or 'ETL1C'. Read the ETL documentation to add support
-               for other datasets.
-    - f: opened binary file
+    """Load image from ETL binary
+
+    Args:
+        database (string):  'ETL8B2' or 'ETL1C'. Read the ETL documentation to add support
+            for other datasets.
+        f (opened file): binary file
 
     Returns:
-    - PIL image of the Japanese character
+        img_out (PIL image): image of the Japanese character
     """
     W, H = 64, 63
     if database == 'ETL8B2':
         s = f.read(512)
         r = struct.unpack('>2H4s504s', s)
-        i1 = Image.frombytes('1', (W,H), r[3], 'raw')
+        i1 = Image.frombytes('1', (W, H), r[3], 'raw')
         img_out = r + (i1,)
         return img_out
 
     elif database == 'ETL1C':
         s = f.read(2052)
         r = struct.unpack('>H2sH6BI4H4B4x2016s4x', s)
-        iF = Image.frombytes('F', (W,H), r[18], 'bit', 4)
+        iF = Image.frombytes('F', (W, H), r[18], 'bit', 4)
         iP = iF.convert('P')
 
         enhancer = ImageEnhance.Brightness(iP)
         iE = enhancer.enhance(40)
         size_add = 12
-        iE = iE.resize((W+size_add,H+size_add))
-        iE = iE.crop((size_add/2,
-                      size_add/2,
-                      W + size_add/2,
-                      H + size_add/2))
+        iE = iE.resize((W + size_add, H + size_add))
+        iE = iE.crop((size_add / 2,
+                      size_add / 2,
+                      W + size_add / 2,
+                      H + size_add / 2))
         img_out = r + (iE,)
         return img_out
+
 
 def get_ETL_data(dataset, categories, writers_per_char,
                  database='ETL8B2',
                  starting_writer=None,
-                 vectorize=False, 
+                 vectorize=False,
                  resize=None,
-                 img_format=None,
+                 img_format=False,
                  get_scripts=False,
                  ):
-    """
-    Load Japanese characters into a list of PIL images or numpy arrays.
+    """Load Japanese characters into a list of PIL images or numpy arrays.
 
-    Inputs:
-    - dataset: the dataset index for the corresponding database. This will be the
-               index that shows up in the name for the binary file.
-    - categories: the characters to return
-    - writers_per_char: the number of different writers to return, for each character.
-    - starting_writer: specify the index for a starting writer
-    - vectorize: True will return as a flattened numpy array
-    - resize: (W,H) tuple to specify the output image dimensions
-    - img_format: True will return as PIL image
-    - get_scripts: True will also return a label for the type of Japanese script
+
+    Args:
+        dataset (string): the dataset index for the corresponding database. This will be the
+            index that shows up in the name for the binary file.
+        categories (iterable): the characters to return
+        writers_per_char (int): the number of different writers to return, for each character.
+        database (str, optional): database name
+        starting_writer (int, optional): specify the index for a starting writer
+        vectorize (bool, optional): True will return as a flattened numpy array
+        resize (tuple, optional): (W,H) tuple to specify the output image dimensions
+        img_format (bool, optional): True will return as PIL image
+        get_scripts (bool, optional): True will also return a label for the type of Japanese script
 
     Returns:
-    - output: (X, Y [, scriptTypes]) tuple containing the data, labels, and the script type if get_scripts=True
+        output (X, Y [, scriptTypes]): tuple containing the data, labels, and the script type if get_scripts=True
     """
 
     W, H = 64, 64
     new_img = Image.new('1', (W, H))
 
     if database == 'ETL8B2':
-        name_base = ETL_path+'/ETL8B/ETL8B2C'
+        name_base = ETL_PATH + '/ETL8B/ETL8B2C'
     elif database == 'ETL1C':
-        name_base = ETL_path+'/ETL1/ETL1C_'
+        name_base = ETL_PATH + '/ETL1/ETL1C_'
 
     try:
-        filename = name_base+dataset
+        filename = name_base + dataset
     except:
-        filename = name_base+str(dataset)
+        filename = name_base + str(dataset)
 
     X = []
     Y = []
@@ -102,11 +106,11 @@ def get_ETL_data(dataset, categories, writers_per_char,
                     # skip records
                     if starting_writer:
                         for j in range(starting_writer):
-                            read_record(database,f)
-                    
+                            read_record(database, f)
+
                     # start outputting records
-                    r = read_record(database,f)
-                    new_img.paste(r[-1], (0,0))    
+                    r = read_record(database, f)
+                    new_img.paste(r[-1], (0, 0))
                     iI = Image.eval(new_img, lambda x: not x)
 
                     # resize images
@@ -116,15 +120,17 @@ def get_ETL_data(dataset, categories, writers_per_char,
                         shapes = resize[0], resize[1]
                     else:
                         shapes = W, H
-                    
+
                     # output formats
                     if img_format:
                         outData = iI
                     elif vectorize:
-                        outData = np.asarray(iI.getdata()).reshape(shapes[0]*shapes[1])
+                        outData = np.asarray(iI.getdata()).reshape(
+                            shapes[0] * shapes[1])
                     else:
-                        outData = np.asarray(iI.getdata()).reshape(shapes[0],shapes[1])
-                    
+                        outData = np.asarray(iI.getdata()).reshape(
+                            shapes[0], shapes[1])
+
                     X.append(outData)
                     if database == 'ETL8B2':
                         Y.append(r[1])
